@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr.안의 치과 강의실</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+
+        .content { padding: 2rem; }
+
+        /* ── 검색 ── */
+        .search-section { margin-bottom: 2rem; }
+        .search-box { position: relative; margin-bottom: 1.5rem; }
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .search-box i {
+            position: absolute;
+            left: 12px; top: 50%;
+            transform: translateY(-50%);
+            color: #999; font-size: 18px;
+        }
+
+        /* ── 메인 카테고리 버튼 ── */
+        .category-section { margin-bottom: 1.5rem; }
+        .category-label {
+            font-size: 14px; color: #666;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 1rem; font-weight: 600;
+        }
+        .category-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+        .category-btn {
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            background: white; color: #333;
+            border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.3s;
+        }
+        .category-btn:hover { border-color: #667eea; background: #f5f7ff; }
+        .category-btn.active { background: #667eea; color: white; border-color: #667eea; }
+
+        /* ── 세부 카테고리 탭 ── */
+        .sub-tab-section {
+            display: none;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .sub-tab-section.visible { display: flex; }
+        .sub-tab {
+            padding: 10px 18px;
+            border: none;
+            background: none;
+            color: #888;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .sub-tab:hover { color: #667eea; }
+        .sub-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f5f7ff;
+            border-radius: 6px 6px 0 0;
+        }
+
+        /* ── 영상 그리드 ── */
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .video-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .video-thumbnail {
+            position: relative;
+            width: 100%; height: 180px;
+            background: #000; overflow: hidden;
+        }
+        .video-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .play-overlay {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.4);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .video-card:hover .play-overlay { opacity: 1; }
+        .play-button {
+            width: 56px; height: 56px;
+            background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .play-button i { color: #667eea; font-size: 24px; margin-left: 2px; }
+
+        .video-info { padding: 1.5rem; }
+        .video-category {
+            font-size: 12px; color: #667eea;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            font-weight: 600; margin-bottom: 0.5rem;
+        }
+        .video-title {
+            font-size: 16px; font-weight: 600; color: #333;
+            margin-bottom: 0.5rem; line-height: 1.4; min-height: 2.4em;
+        }
+        .video-description { font-size: 14px; color: #666; line-height: 1.5; margin-bottom: 1rem; }
+        .video-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tag {
+            font-size: 12px; padding: 4px 8px;
+            background: #f0f2ff; color: #667eea;
+            border-radius: 6px; font-weight: 500;
+        }
+
+        .no-results { text-align: center; padding: 3rem; color: #999; display: none; }
+        .no-results i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+
+        /* ── 영상 요청 폼 ── */
+        .request-section { display: none; margin-top: 1rem; }
+        .request-section.visible { display: block; }
+        .request-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 0.4rem; }
+        .request-subtitle { font-size: 14px; color: #888; margin-bottom: 1.5rem; }
+        .request-form { background: #f9f9ff; border: 1.5px solid #e0e4ff; border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        .form-row { display: flex; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+        .form-group label { font-size: 13px; font-weight: 600; color: #555; }
+        .form-group input, .form-group textarea { padding: 10px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; background: white; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .form-group textarea { resize: vertical; min-height: 90px; }
+        .submit-btn { padding: 12px 28px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; align-self: flex-end; transition: background 0.2s; }
+        .submit-btn:hover { background: #5567d4; }
+        .submit-btn:disabled { background: #aaa; cursor: default; }
+        .form-msg { font-size: 13px; padding: 10px 14px; border-radius: 8px; display: none; }
+        .form-msg.success { background: #e8f5e9; color: #2e7d32; display: block; }
+        .form-msg.error { background: #fdecea; color: #c62828; display: block; }
+
+        @media (max-width: 768px) {
+            .header { padding: 2rem 1.5rem; }
+            .header h1 { font-size: 1.8rem; }
+            .content { padding: 1.5rem; }
+            .videos-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .category-buttons { gap: 0.5rem; }
+            .category-btn { padding: 8px 12px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🦷 Dr.안의 치과 강의실</h1>
+        <p>환자 교육 영상 자료</p>
+    </div>
+
+    <div class="content">
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="영상 제목으로 검색하세요...">
+            </div>
+        </div>
+
+        <div class="category-section">
+            <div class="category-label">카테고리로 보기</div>
+            <div class="category-buttons" id="categoryButtons"></div>
+        </div>
+
+        <!-- 세부 카테고리 탭 -->
+        <div class="sub-tab-section" id="subTabSection"></div>
+
+        <div class="videos-grid" id="videosContainer"></div>
+        <div class="no-results" id="noResults">
+            <i class="fas fa-search"></i>
+            <p>검색 결과가 없습니다.</p>
+        </div>
+
+        <div class="request-section" id="requestSection">
+            <div class="request-title">📩 영상 요청하기</div>
+            <div class="request-subtitle">원하시는 영상 주제를 알려주시면 제작 검토 후 업로드해드립니다.</div>
+            <div class="request-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reqName">요청자 이름</label>
+                        <input type="text" id="reqName" placeholder="이름을 입력하세요">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reqContent">영상 내용</label>
+                    <textarea id="reqContent" placeholder="원하시는 영상 주제나 내용을 자유롭게 적어주세요."></textarea>
+                </div>
+                <div class="form-msg" id="formMsg"></div>
+                <button class="submit-btn" id="submitBtn" onclick="submitRequest()">요청 보내기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── 세부 카테고리 정의
+    const SUB_CATS = {
+        '임플란트': ['전체', '저가형 임플란트', '수면 임플란트', '수술 후 주의사항', '관리법'],
+        '충치·신경·발치·수면': ['전체', '충치치료', '신경치료', '발치치료', '수면치료'],
+        '보철 · 미백 · 턱관절 · 라미네이트': ['전체', '보철치료', '치아미백', '턱관절', '라미네이트'],
+        '잇몸 · 스케일링 · 예방': ['전체', '잇몸치료', '스케일링', '예방관리'],
+    };
+
+    // ── 영상 데이터
+    const videosData = [
+        { id:1,  title:'임플란트 보철 후 주의사항 및 관리법', category:'임플란트', subCat:'수술 후 주의사항', tags:['보철 관리','식사 주의','청결 유지'],       youtubeId:'u9XePrPVQHs', description:'보철 관리, 식사 주의, 청결 유지' },
+        { id:2,  title:'임플란트 후 출혈·붓기 관리법',        category:'임플란트', subCat:'수술 후 주의사항', tags:['출혈 관리','붓기 완화','회복 관리'],       youtubeId:'wBjzjZQm2OY', description:'출혈 관리, 붓기 완화, 회복 관리' },
+        { id:3,  title:'수면 임플란트 위험할까?',              category:'임플란트', subCat:'수면 임플란트',   tags:['수면 치료','안전 관리','응급 대비'],       youtubeId:'5Dya3bzJiiI', description:'수면 치료, 안전 관리, 응급 대비' },
+        { id:4,  title:'임플란트 저가형 임플란트',             category:'임플란트', subCat:'저가형 임플란트', tags:['비용 차이','재료 품질','사후 관리'],       youtubeId:'IJY2G6sgW3U', description:'비용 차이, 재료 품질, 사후 관리' },
+        { id:5,  title:'임플란트 오래쓰는 관리법 4가지',       category:'임플란트', subCat:'관리법',          tags:['칫솔질','치실 사용','워터픽','정기 검진'], youtubeId:'BMOFXBuD5x4', description:'칫솔질, 치실 사용, 워터픽, 정기 검진' },
+        { id:6,  title:'임플란트 힐링 어버트먼트',             category:'임플란트', subCat:'관리법',          tags:['힐링 과정','어버트먼트','치료 단계'],      youtubeId:'bOlP7O9xDTY', description:'힐링 과정, 어버트먼트, 치료 단계' },
+        { id:7,  title:'상악동 거상술 주의사항',               category:'임플란트', subCat:'수술 후 주의사항', tags:['수술 주의','금기 사항','회복 관리'],       youtubeId:'AJrbNEquCxM', description:'수술 주의, 금기 사항, 회복 관리' },
+        { id:8,  title:'신경치료 후 주의사항',                 category:'충치·신경·발치·수면',  subCat:'신경치료', tags:['통증 관리','탈락 주의','치료 경과'],       youtubeId:'EqRS07hJYTE', description:'통증 관리, 탈락 주의, 치료 경과' },
+        { id:9,  title:'레진치료 후 주의사항',                 category:'충치·신경·발치·수면',  subCat:'충치치료', tags:['시림 증상','변색 예방','유지 관리'],       youtubeId:'OeRgmzezdOI', description:'시림 증상, 변색 예방, 유지 관리' },
+        { id:10, title:'인레이치료 후 주의사항',               category:'충치·신경·발치·수면',  subCat:'충치치료', tags:['불편감 관리','접착 유지','치아 관리'],     youtubeId:'WwWTNcaS_Jo', description:'불편감 관리, 접착 유지, 치아 관리' },
+        { id:11, title:'수면치료 후 주의사항',                 category:'충치·신경·발치·수면',  subCat:'수면치료', tags:['금식 안내','회복 관리','주의 사항'],       youtubeId:'8ozNHDF4f5c', description:'금식 안내, 회복 관리, 주의 사항' },
+        { id:12, title:'발치치료 후 주의사항',                 category:'충치·신경·발치·수면',  subCat:'발치치료', tags:['출혈 관리','붓기 완화','금기 사항'],       youtubeId:'nR5q6yviAzo', description:'출혈 관리, 붓기 완화, 금기 사항' },
+        { id:13, title:'틀니치료 후 주의사항',                 category:'보철 · 미백 · 턱관절 · 라미네이트', subCat:'보철치료', tags:['틀니 세척','수면 보관','정기 검진'],       youtubeId:'_5rEEYemTNg', description:'틀니 세척, 수면 보관, 정기 검진' },
+        { id:14, title:'치아미백 후 주의사항',                 category:'보철 · 미백 · 턱관절 · 라미네이트', subCat:'치아미백', tags:['미백 효과','시림 증상','유지 관리'],       youtubeId:'tz30e6eC2Hk', description:'미백 효과, 시림 증상, 유지 관리' },
+        { id:15, title:'턱관절치료 주의사항',                  category:'보철 · 미백 · 턱관절 · 라미네이트', subCat:'턱관절',   tags:['온찜질 관리','생활 습관','운동 요법'],     youtubeId:'cFr5oXKcK18', description:'온찜질 관리, 생활 습관, 운동 요법' },
+        { id:16, title:'치과 보철물 빠졌을 경우 대처 방법',    category:'보철 · 미백 · 턱관절 · 라미네이트', subCat:'보철치료', tags:['탈락 원인','응급 대처','재부착 안내'],     youtubeId:'C9e6C6H8Wf0', description:'탈락 원인, 응급 대처, 재부착 안내' },
+        { id:17, title:'스케일링 Q&A',                         category:'잇몸 · 스케일링 · 예방', subCat:'스케일링', tags:['시림 증상','출혈 반응','정기 관리'],     youtubeId:'T3rI20QzycA', description:'시림 증상, 출혈 반응, 정기 관리' },
+        { id:18, title:'충치보다 무서운 풍치',                 category:'잇몸 · 스케일링 · 예방', subCat:'잇몸치료', tags:['풍치 증상','진행 단계','예방 관리'],     youtubeId:'IcJ-MEHKVdo', description:'풍치 증상, 진행 단계, 예방 관리' },
+        { id:19, title:'치아 정기검진이 필요한 이유',          category:'잇몸 · 스케일링 · 예방', subCat:'예방관리', tags:['정기 검진','조기 발견','예방 관리'],     youtubeId:'S86EGW8sJMc', description:'정기 검진, 조기 발견, 예방 관리' },
+        { id:20, title:'칫솔질의 정석',                        category:'잇몸 · 스케일링 · 예방', subCat:'예방관리', tags:['칫솔 선택','양치 습관','위생 관리'],     youtubeId:'Wc5JmlkiM2Q', description:'칫솔 선택, 양치 습관, 위생 관리' },
+        { id:21, title:'유치 관리 꿀팁',                       category:'잇몸 · 스케일링 · 예방', subCat:'예방관리', tags:['유치 관리','식습관 조절','정기 검진'],   youtubeId:'yafpa4VOqbA', description:'유치 관리, 식습관 조절, 정기 검진' },
+        { id:22, title:'구내염과 백태',                        category:'잇몸 · 스케일링 · 예방', subCat:'예방관리', tags:['증상 구분','원인 관리','주의 사항'],     youtubeId:'h7TdtNVxzvo', description:'증상 구분, 원인 관리, 주의 사항' },
+        { id:23, title:'치과마다 충치 개수가 다른 이유',       category:'상담 · 안내 · FAQ',    subCat: null,      tags:['진단 기준','치료 범위','과잉진료 예방'],   youtubeId:'5B58gK9xnRE', description:'진단 기준, 치료 범위, 과잉진료 예방' },
+        { id:24, title:'수려한 치과 안내문 11장',              category:'상담 · 안내 · FAQ',    subCat: null,      tags:['진료 안내','사후 관리','병원 운영'],       youtubeId:'aerma0ffuhY', description:'진료 안내, 사후 관리, 병원 운영' },
+        { id:25, title:'과잉진료 없는 서울수려한치과만의 기준', category:'상담 · 안내 · FAQ',   subCat: null,      tags:['진료 기준','치료 원칙','진료 철학'],       youtubeId:'AglaMGky638', description:'진료 기준, 치료 원칙, 진료 철학' },
+        { id:26, title:'라미네이트 치료 후 주의사항',          category:'보철 · 미백 · 턱관절 · 라미네이트', subCat:'라미네이트', tags:['음식 섭취','양치·구강청결','생활습관'],     youtubeId:'P8x4Qpur-SQ', description:'음식 섭취, 양치·구강청결, 생활습관·정기검진' },
+    ];
+
+    const CATEGORY_ORDER = ['임플란트', '충치·신경·발치·수면', '보철 · 미백 · 턱관절 · 라미네이트', '잇몸 · 스케일링 · 예방', '상담 · 안내 · FAQ', '영상 요청'];
+
+    let selectedCategory = null;
+    let selectedSubCat = '전체';
+
+    // ── 카테고리 버튼 렌더
+    function renderCategories() {
+        const container = document.getElementById('categoryButtons');
+        container.innerHTML = '';
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'category-btn active';
+        allBtn.textContent = '전체보기';
+        allBtn.onclick = () => { document.getElementById('requestSection').classList.remove('visible'); selectedCategory = null; selectedSubCat = '전체'; renderSubTabs(); filterVideos(); updateActiveBtn(null); };
+        container.appendChild(allBtn);
+
+        CATEGORY_ORDER.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'category-btn';
+            btn.textContent = cat;
+            btn.onclick = () => {
+                if (cat === '영상 요청') {
+                    selectedCategory = '영상 요청';
+                    updateActiveBtn('영상 요청');
+                    document.getElementById('subTabSection').classList.remove('visible');
+                    document.getElementById('subTabSection').innerHTML = '';
+                    document.getElementById('videosContainer').innerHTML = '';
+                    document.getElementById('noResults').style.display = 'none';
+                    document.getElementById('requestSection').classList.add('visible');
+                    document.getElementById('formMsg').className = 'form-msg';
+                } else {
+                    document.getElementById('requestSection').classList.remove('visible');
+                    selectedCategory = cat; selectedSubCat = '전체'; renderSubTabs(); filterVideos(); updateActiveBtn(cat);
+                }
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function updateActiveBtn(category) {
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.toggle('active',
+                (category === null && btn.textContent === '전체보기') || btn.textContent === category
+            );
+        });
+    }
+
+    // ── 세부 탭 렌더
+    function renderSubTabs() {
+        const section = document.getElementById('subTabSection');
+        const subs = SUB_CATS[selectedCategory];
+
+        if (!subs) {
+            section.classList.remove('visible');
+            section.innerHTML = '';
+            return;
+        }
+
+        section.classList.add('visible');
+        section.innerHTML = subs.map(sub => `
+            <button class="sub-tab${selectedSubCat === sub ? ' active' : ''}" onclick="selectSubCat('${sub}')">${sub}</button>
+        `).join('');
+    }
+
+    function selectSubCat(sub) {
+        selectedSubCat = sub;
+        renderSubTabs();
+        filterVideos();
+    }
+
+    // ── 라미네이트 제작예정 데이터
+    const LAMINATE_COMING = [
+        { label: '전화상담 예약환자' },
+        { label: '전화상담 예약미정' },
+        { label: '내원상담 예약환자' },
+        { label: '내원상담 예약미정' },
+    ];
+
+    function makeComingCard(label) {
+        return `<div class="video-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;border:2px dashed #ddd;background:#fafafa;cursor:default;">
+            <div style="font-size:2.5rem;margin-bottom:0.8rem;opacity:0.3;">🎬</div>
+            <span style="display:inline-block;font-size:12px;font-weight:700;color:#667eea;background:#f0f2ff;border:1.5px solid #d0d5ff;border-radius:20px;padding:4px 12px;margin-bottom:0.6rem;">제작예정</span>
+            <div style="font-size:14px;font-weight:600;color:#555;margin-bottom:0.3rem;">라미네이트 — ${label}</div>
+            <div style="font-size:13px;color:#999;text-align:center;line-height:1.5;">해당 영상은 현재 제작 중입니다.<br>빠른 시일 내에 업로드될 예정입니다.</div>
+        </div>`;
+    }
+
+    // ── 영상 필터링
+    function filterVideos() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const container = document.getElementById('videosContainer');
+        const noResults = document.getElementById('noResults');
+
+        const filtered = videosData.filter(v => {
+            const matchCat = selectedCategory === null || v.category === selectedCategory;
+            const matchSub = !selectedCategory || !SUB_CATS[selectedCategory] || selectedSubCat === '전체' || v.subCat === selectedSubCat;
+            const matchSearch = v.title.toLowerCase().includes(searchTerm) ||
+                                v.description.toLowerCase().includes(searchTerm) ||
+                                v.tags.some(t => t.toLowerCase().includes(searchTerm));
+            return matchCat && matchSub && matchSearch;
+        });
+
+        // 라미네이트 탭일 때 제작예정 카드 표시 여부 결정
+        const isLaminateTab = selectedCategory === '보철 · 미백 · 턱관절 · 라미네이트' && selectedSubCat === '라미네이트';
+        const isLaminateAll = selectedCategory === '보철 · 미백 · 턱관절 · 라미네이트' && selectedSubCat === '전체';
+
+        container.innerHTML = '';
+        const showNoResults = filtered.length === 0 && !isLaminateTab && !isLaminateAll;
+        noResults.style.display = showNoResults ? 'block' : 'none';
+
+        filtered.forEach(video => {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.innerHTML = `
+                <div class="video-thumbnail">
+                    <img src="https://img.youtube.com/vi/${video.youtubeId}/maxresdefault.jpg" alt="${video.title}">
+                    <div class="play-overlay"><div class="play-button"><i class="fas fa-play"></i></div></div>
+                </div>
+                <div class="video-info">
+                    <div class="video-category">${video.subCat || video.category}</div>
+                    <h3 class="video-title">${video.title}</h3>
+                    <p class="video-description">${video.description}</p>
+                    <div class="video-tags">${video.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                </div>`;
+            card.onclick = () => window.open(`https://www.youtube.com/watch?v=${video.youtubeId}`, '_blank');
+            container.appendChild(card);
+        });
+
+        // 라미네이트 탭이면 제작예정 카드 4개 추가
+        if (isLaminateTab || isLaminateAll) {
+            LAMINATE_COMING.forEach(item => {
+                const div = document.createElement('div');
+                div.innerHTML = makeComingCard(item.label);
+                container.appendChild(div.firstChild);
+            });
+        }
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterVideos);
+
+    renderCategories();
+    filterVideos();
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZfi6lFbARjWTZlXmrLBp_UDR6rxn1Q-bqx-5bm503nsXvlHeIixGneEap7dP0vjmJ/exec';
+
+    async function submitRequest() {
+        const name = document.getElementById('reqName').value.trim();
+        const reqContent = document.getElementById('reqContent').value.trim();
+        const msg = document.getElementById('formMsg');
+        const btn = document.getElementById('submitBtn');
+
+        msg.className = 'form-msg';
+        msg.style.display = 'none';
+
+        if (!name) { msg.className = 'form-msg error'; msg.textContent = '요청자 이름을 입력해주세요.'; return; }
+        if (!reqContent) { msg.className = 'form-msg error'; msg.textContent = '영상 내용을 입력해주세요.'; return; }
+
+        btn.disabled = true;
+        btn.textContent = '전송 중...';
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ name: name, content: reqContent })
+            });
+            msg.className = 'form-msg success';
+            msg.textContent = '요청이 성공적으로 전송되었습니다! 검토 후 제작 예정에 반영하겠습니다.';
+            document.getElementById('reqName').value = '';
+            document.getElementById('reqContent').value = '';
+        } catch(err) {
+            msg.className = 'form-msg error';
+            msg.textContent = '전송 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+        }
+
+        btn.disabled = false;
+        btn.textContent = '요청 보내기';
+    }
+</script>
+</body>
+</html>
